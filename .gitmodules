@@ -1,0 +1,3 @@
+[submodule "racketd-client"]
+	path = racketd-client
+	url = git@github.com:jFransham/racketd-client
