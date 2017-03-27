@@ -10,10 +10,16 @@ define (eval-with-output sexp ns output)
   parameterize
     ([current-namespace ns]
      [current-output-port output])
-    if {(list? sexp) and {(car sexp) eq? 'module}}
-      let ([new-sexp `(begin ,sexp (require (quote ,(cadr sexp))))])
-        eval new-sexp
-      println (eval sexp)
+    with-handlers
+      group
+        exn?
+          compose
+            curryr displayln output
+            exn-message
+      if {(list? sexp) and {(car sexp) eq? 'module}}
+        let ([new-sexp `(begin ,sexp (require (quote ,(cadr sexp))))])
+          eval new-sexp
+        println (eval sexp)
 
 define (main)
   let-values ([(input output) (tcp-accept server)])
