@@ -8,8 +8,9 @@ define server
 
 define (eval-with-output sexp ns output)
   parameterize
-    ([current-namespace ns]
-     [current-output-port output])
+    group
+      current-namespace ns
+      current-output-port output
     with-handlers
       group
         exn?
