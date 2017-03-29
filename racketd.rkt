@@ -9,8 +9,7 @@ define server
   tcp-listen port 4 #f "127.0.0.1"
 
 define (println-if-non-void val)
-  if (void? val)
-    void
+  unless (void? val)
     println val
 
 define (eval-with-io sexp ns args input output)
@@ -22,10 +21,7 @@ define (eval-with-io sexp ns args input output)
       current-output-port output
     with-handlers
       group
-        exn?
-          compose
-            displayln
-            exn-message
+        exn? (compose displayln exn-message)
       if {(list? sexp) and {(car sexp) eq? 'module}}
         ;; Converts (module something ...) to (begin (module something ...)
         ;;                                           (require 'something))
