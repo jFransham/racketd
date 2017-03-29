@@ -8,6 +8,11 @@ define port 65511
 define server
   tcp-listen port 4 #f "127.0.0.1"
 
+define (println-if-non-void val)
+  if (void? val)
+    void
+    println val
+
 define (eval-with-io sexp ns args input output)
   parameterize
     group
@@ -22,9 +27,10 @@ define (eval-with-io sexp ns args input output)
             displayln
             exn-message
       if {(list? sexp) and {(car sexp) eq? 'module}}
-        let ([new-sexp `(begin ,sexp (require (quote ,(cadr sexp))))])
-          eval new-sexp
-        println (eval sexp)
+        ;; Converts (module something ...) to (begin (module something ...)
+        ;;                                           (require 'something))
+        eval `(begin ,sexp (require ',(cadr sexp)))
+        println-if-non-void (eval sexp)
 
 define (main)
   let-values ([(input output) (tcp-accept server)])
