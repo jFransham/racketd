@@ -22,11 +22,14 @@ define (eval-with-io sexp ns args input output)
     with-handlers
       group
         exn? (compose displayln exn-message)
-      if {(list? sexp) and {(car sexp) eq? 'module}}
-        ;; Converts (module something ...) to (begin (module something ...)
-        ;;                                           (require 'something))
-        eval `(begin ,sexp (require ',(cadr sexp)))
-        println-if-non-void (eval sexp)
+      cond
+        {(list? sexp) and {(car sexp) eq? 'module}}
+          eval `(begin ,sexp (require ',(cadr sexp)))
+        compiled-expression? sexp
+          eval sexp
+          eval `(require ',(module-compiled-name sexp))
+        else
+          println-if-non-void (eval sexp)
 
 define (handle input output)
   with-handlers
@@ -71,5 +74,6 @@ define (main)
 
 read-accept-lang   #t
 read-accept-reader #t
+read-accept-compiled #t
 
 (main)
